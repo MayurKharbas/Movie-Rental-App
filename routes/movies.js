@@ -20,7 +20,7 @@ router.post('/', async (req, res) =>{
     const genre = await Genre.findById(req.body.genreId);
     if(!genre) return res.status(404).send('Post: Movie-Genre Not Found...');
 
-    let movie = new Movie({
+    const movie = new Movie({
         title: req.body.title,
         numberInStock: req.body.numberInStock,
         dailyRentalRate: req.body.dailyRentalRate,
