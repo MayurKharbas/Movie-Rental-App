@@ -1,52 +1,53 @@
-const mongoose = require('mongoose');
-const express = require('express');
-const router = express.Router();
-const {Customer,validation} = require('../models/customers.js');
+const router = require('express').Router();
+const {Customer, validate} = require('../models/customer');
 
-/***************************GET CUSTOMER ******************************/
-router.get('/', async(req,res)=>{
-    const customers = await Customer.find().select({name: 1, isGold: 1, phone: 1});
-    if(!customers) return res.status(404).send("No Customers Found in System");
+const auth = require('../middleware/auth');
+const admin = require('../middleware/admin');
+
+router.get('/', [auth, admin], async (req, res) =>{
+    const customers = await Customer.find();
     res.send(customers);
 });
 
+router.get('/:id', [auth, admin], async (req, res) => {
+    const customer = await Customer.findById(req.params.id);
+    if(!customer) return res.status(404).send('Get: Customer Not Found...');
+    res.send(customer);
+});
 
+router.post('/', [auth, admin], async (req, res) => {
+    const {error} = validate(req.body);
+    if(error) return res.status(400).send(error.details[0].message);
 
-/**************************Insert Customer ****************************/
-router.post('/' , async(req , res) =>{
-    
-    const {error} = validation(req.body);
-    console.log(error);
-    if(error) return res.status(400).send(error.details);
-
-    const customer =new Customer ({
-        name : req.body.name,
-        isGold : req.body.isGold,
-        phone : req.body.phone
+    let customer = new Customer({
+        name: req.body.name,
+        phone: req.body.phone,
+        isGold: req.body.isGold
     });
 
-    const customers = await customer.save();
-    res.send(customers);
-
+    customer = await customer.save();
+    res.send(customer);
 });
 
+router.put('/:id', [auth, admin], async (req, res) => {
+    const {error} = validate(req.body);
+    if(error) return res.status(400).send(error.details[0].message);
 
-/*******************Update Customer ****************/
-router.put('/:id' ,async(req , res) =>{
-    
-    const {error} = validation(req.body);
-    if(error) return res.status(400).send(sendMessage(error.details.message));
+    const customer = await Customer.findByIdAndUpdate(req.params.id, {
+        name: req.body.name,
+        phone: req.body.phone,
+        isGold: req.body.isGold
+    }, { new: true});
 
-    const customers = await Customer.findByIdAndUpdate(req.params.id,{name : req.body.name, isGold : req.body.isGold , phone : req.body.phone} ,{new : true});
-    if(!customers) return res.status(404).send(`Customer ID  ${req.params.id} not Found`)
-    res.send(customers);
+    if(!customer) return res.status(404).send('Put: Customer Not Found...');
+
+    res.send(customer);
 });
 
-/******************Remove customer**************/
-router.delete('/:id' ,async (req ,res) =>{
-    const customers = await Customer.findByIdAndDelete(req.params.id);
-    if(!customers) return res.status(404).send(`Customer ID ${req.params.id} not Found`)
-    res.send(customers);
-});
+router.delete('/:id', [auth, admin], async (req, res) => {
+    const customer = await Customer.findByIdAndRemove(req.params.id);
+    if(!customer) return res.status(404).send('Delete: Customer Not Found...');
+    res.send(customer);
+})
 
 module.exports = router;
