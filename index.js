@@ -19,7 +19,7 @@ if(!config.get('jwtPrivateKey')){
     process.exit(1);
 }
 
-mongoose.connect('mongodb://localhost/vidly', { 
+mongoose.connect('mongodb://localhost/movie_rental', { 
         useNewUrlParser: true, 
         useUnifiedTopology: true,
         useFindAndModify: false
