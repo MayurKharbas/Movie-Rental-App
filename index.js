@@ -10,9 +10,26 @@ const rentals = require('./routes/rentals');
 
 const users = require('./routes/users');
 const auth = require('./routes/auth');
+const error = require('./middleware/error');
+const winston = require('winston');
+require('winston-mongodb');
+require('express-async-errors');
 
 const Joi = require('joi');
 Joi.objectId = require('joi-objectid')(Joi);
+
+winston.handleExceptions(
+    new winston.transports.File({ filename: 'uncaughtExceptions.log' }));
+
+process.on('unhandledRejection', (ex) => {
+    throw ex;
+});
+
+winston.add(new winston.transports.File({ filename: 'logfile.log' }));
+winston.add(winston.transports.MongoDB, { 
+    db: 'mongodb://localhost/movie_rental',
+    level: 'info' 
+});
 
 if(!config.get('jwtPrivateKey')){
     console.log('FATAL ERROR: jwtPrivateKey not defined.');
@@ -36,5 +53,7 @@ app.use('/api/rentals', rentals);
 
 app.use('/api/users', users);
 app.use('/api/auth', auth);
+
+app.use(error);
 
 app.listen(3000, ()=>console.log("Listening on port 3000..."));
