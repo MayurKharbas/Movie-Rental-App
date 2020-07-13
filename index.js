@@ -1,11 +1,22 @@
-const winston = require('winston');
 const express = require('express');
 const app = express();
+const winston = require('winston');
 
-require('./startup/logging');
+//enabling logging
+require('./startup/logging')();
+
+//getting routeHandlers
 require('./startup/routes')(app);
+
+//getting db ready
 require('./startup/db')();
+
+//loading configurations
 require('./startup/config')();
+
+//getting validators
 require('./startup/validation')();
 
-app.listen(3000, ()=>winston.info("Listening on port 3000..."));
+const server = app.listen(3000, () =>winston.info("Listening on port 3000..."));
+
+module.exports = server;

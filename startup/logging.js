@@ -1,19 +1,42 @@
+require('express-async-errors');
 const winston = require('winston');
 require('winston-mongodb');
-require('express-async-errors');
 
-module.exports = function() {
-    winston.handleExceptions(
-        new winston.transports.Console({ colorize:true, prettyPrint:true }), 
-        new winston.transports.File({ filename: 'uncaughtExceptions.log' }));
-    
+module.exports = function () {
     process.on('unhandledRejection', (ex) => {
+        // console.log('Got an Unhandle d Promise Rejection. ');
+        // winston.error(ex.message, ex);
+        // process.exit(1);
+
+        //throw rejection as error to get logged.
         throw ex;
     });
+
+    //logs to console
+    winston.add(new winston.transports.Console({
+        format: winston.format.combine(
+            winston.format.colorize(),
+            winston.format.simple()
+        ),
+        handleExceptions: true
+    }));
+
+    //logs to a file
+    winston.add(new winston.transports.File({
+        filename: 'logFile.log'
+    }));
+
+    //logs exceptions only to a file
+    winston.exceptions.handle(
+        new winston.transports.File({ filename: 'uncaughtExceptions.log' })
+      );
     
-    winston.add(new winston.transports.File({ filename: 'logfile.log' }));
-    winston.add(winston.transports.MongoDB, { 
-        db: 'mongodb://localhost/movie_rental',
-        level: 'info' 
-    });
-}
+    //logs info to db
+    winston.add(new winston.transports.MongoDB({
+        db: 'mongodb://localhost/vidly', 
+        level: 'info',
+        options: {
+            useUnifiedTopology: true
+        }//mongodb params
+    }));
+}//logging Handling
