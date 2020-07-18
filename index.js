@@ -1,40 +1,22 @@
 const express = require('express');
 const app = express();
-const mongoose = require('mongoose');
-const config = require('config');
+const winston = require('winston');
 
-const genres = require('./routes/genres');
-const customers = require('./routes/customers');
-const movies = require('./routes/movies');
-const rentals = require('./routes/rentals');
+//enabling logging
+require('./startup/logging')();
 
-const users = require('./routes/users');
-const auth = require('./routes/auth');
+//getting routeHandlers
+require('./startup/routes')(app);
 
-const Joi = require('joi');
-Joi.objectId = require('joi-objectid')(Joi);
+//getting db ready
+require('./startup/db')();
 
-if(!config.get('jwtPrivateKey')){
-    console.log('FATAL ERROR: jwtPrivateKey not defined.');
-    process.exit(1);
-}
+//loading configurations
+require('./startup/config')();
 
-mongoose.connect('mongodb://localhost/movie_rental', { 
-        useNewUrlParser: true, 
-        useUnifiedTopology: true,
-        useFindAndModify: false
-    })
-    .then(() => console.log('Connected To DB'))
-    .catch(err => console.log('DB Connection Error', err.message));
+//getting validators
+require('./startup/validation')();
 
-app.use(express.json());
+const server = app.listen(3000, () =>winston.info("Listening on port 3000..."));
 
-app.use('/api/genres', genres);
-app.use('/api/customers', customers);
-app.use('/api/movies', movies);
-app.use('/api/rentals', rentals);
-
-app.use('/api/users', users);
-app.use('/api/auth', auth);
-
-app.listen(3000, ()=>console.log("Listening on port 3000..."));
+module.exports = server;
