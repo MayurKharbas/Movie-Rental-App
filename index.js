@@ -1,22 +1,11 @@
-const express = require('express');
+const express = require("express");
+const winston = require("winston");
 const app = express();
-const winston = require('winston');
 
-//enabling logging
-require('./startup/logging')();
+require("./startup/logging")();
+require("./startup/routes")(app);
+require("./startup/db")();
+require("./startup/config")();
+require("./startup/validation")();
 
-//getting routeHandlers
-require('./startup/routes')(app);
-
-//getting db ready
-require('./startup/db')();
-
-//loading configurations
-require('./startup/config')();
-
-//getting validators
-require('./startup/validation')();
-
-const server = app.listen(3000, () =>winston.info("Listening on port 3000..."));
-
-module.exports = server;
+app.listen(3000, () => winston.info("Listening on port 3000..."));

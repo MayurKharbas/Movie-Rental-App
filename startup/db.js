@@ -1,14 +1,16 @@
-const winston = require('winston');
-const mongoose = require('mongoose');
-const config = require('config');
+const winston = require("winston");
+const mongoose = require("mongoose");
+const config = require("config");
 
-module.exports = function() {
-    const db = config.get('db');
+module.exports = function () {
+  const db = config.get("db");
 
-    mongoose.createConnection(db, {
-        useUnifiedTopology: true, 
-        useNewUrlParser: true, 
-        useFindAndModify: false
+  mongoose
+    .connect(db, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      useFindAndModify: false,
+      useCreateIndex: true
     })
-    .then(() => winston.info(`Connected to ${db}...`));
-}//dbHandler
+    .then(() => winston.info(`Connected To DB: ${db}...`));
+}; //dbHandler
