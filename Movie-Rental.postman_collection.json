@@ -147,13 +147,19 @@
 					"name": "get customers",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "x-auth-token",
+								"value": "<x-auth-token-value>",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
 							"raw": ""
 						},
 						"url": {
-							"raw": "http://localhost:3000/api/customers/?x-auth-token=<x-auth-token-value>",
+							"raw": "http://localhost:3000/api/customers/",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -163,12 +169,6 @@
 								"api",
 								"customers",
 								""
-							],
-							"query": [
-								{
-									"key": "x-auth-token",
-									"value": "<x-auth-token-value>"
-								}
 							]
 						}
 					},
@@ -361,7 +361,7 @@
 							"raw": "{\n    \"title\": \"<movie-name>\",\n    \"genreId\": \"<genre-id>\",\n    \"numberInStock\": 10,\n    \"dailyRentalRate\": 20\n}"
 						},
 						"url": {
-							"raw": "http://localhost:3000/api/movies/<movie_id>",
+							"raw": "http://localhost:3000/api/movies/<movie-id>",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -370,7 +370,7 @@
 							"path": [
 								"api",
 								"movies",
-								"<movie_id>"
+								"<movie-id>"
 							]
 						}
 					},
@@ -551,6 +551,46 @@
 							"path": [
 								"api",
 								"auth"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "returns",
+			"item": [
+				{
+					"name": "post returns",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-auth-token",
+								"value": "<x-auth-token-value>",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"customerId\": \"<customer-id>\",\n\t\"movieId\": \"<movie-id>\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/returns",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"returns"
 							]
 						}
 					},
