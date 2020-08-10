@@ -1,8 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const { Genre, validate } = require('../models/genre');
+const validate = require("../middleware/validate");
+const { Genre, validate: validateGenres } = require('../models/genre');
 const auth = require('../middleware/auth');
 const admin = require('../middleware/admin');
+const validateObjectId = require('../middleware/validateObjectId');
 
 router.get('/', async (req, res) => {
     const genres = await Genre
@@ -11,17 +13,13 @@ router.get('/', async (req, res) => {
     res.send(genres);
 });
 
-router.get('/:id', async (req, res) => {
-    try {
-        const genre = await Genre.find({ _id: req.params.id });
-        if (!genre) return res.status(404).send('Get: Genre Not Found...');
-        res.send(genre);
-    } catch (error) {
-        console.log(err.message);
-    }
+router.get('/:id', validateObjectId, async (req, res) => {
+    const genre = await Genre.find({ _id: req.params.id });
+    if (!genre) return res.status(404).send('Get: Genre Not Found...');
+    res.send(genre);
 });
 
-router.post('/', [auth, admin], async (req, res) => {
+router.post('/', [auth, admin, validate(validateGenres)], async (req, res) => {
     const { error } = validate(req.body);
     if (error) return res.status(400).send(error.details[0].message);
 
@@ -33,7 +31,7 @@ router.post('/', [auth, admin], async (req, res) => {
     res.send(genre);
 });
 
-router.put('/:id', [auth, admin], async (req, res) => {
+router.put('/:id', [auth, admin, validateObjectId], async (req, res) => {
     const { error } = validate(req.body);
     if (error) return res.status(400).send(error.details[0].message);
 
@@ -46,7 +44,7 @@ router.put('/:id', [auth, admin], async (req, res) => {
     res.send(genre);
 });
 
-router.delete('/:id', [auth, admin], async (req, res) => {
+router.delete('/:id', [auth, admin, validateObjectId], async (req, res) => {
     const genre = await Genre.findByIdAndRemove(req.params.id);
     if (!genre) return res.status(400).send('Delete: Genre Not Found...');
     res.send(genre);

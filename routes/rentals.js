@@ -1,12 +1,13 @@
 const router = require('express').Router();
 const mongoose = require('mongoose');
 
-const { Rental, validate } = require('../models/rental');
+const { Rental, validate: validateRentals } = require('../models/rental');
 const { Customer } = require('../models/customer');
 const { Movie } = require('../models/movie');
 
 const auth = require('../middleware/auth');
 const admin = require('../middleware/admin');
+const validate = require('../middleware/validate');
 
 const Fawn = require('fawn');
 
@@ -17,10 +18,7 @@ router.get('/', [auth, admin], async (req, res) => {
     res.send(rentals);
 });
 
-router.post('/', [auth, admin], async (req, res) => {
-    const { error } = validate(req.body);
-    if (error) return res.status(400).send(error.details[0].message);
-
+router.post('/', [auth, admin, validate(validateRentals)], async (req, res) => {
     const customer = await Customer.findById(req.body.customerId);
     if (!customer) return res.status(400).send('Post: Rental-Customer Not Found...');
 
