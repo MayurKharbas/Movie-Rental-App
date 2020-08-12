@@ -1,12 +1,12 @@
 const _ = require('lodash');
 const router = require('express').Router();
-const { User, validate } = require('../models/user');
 const bcrypt = require('bcrypt');
 
-router.post('/', async (req, res) => {
-    const { error } = validate(req.body);
-    if (error) return res.status(400).send(error.details[0].message);
+const { User, validate: validateUsers } = require('../models/user');
 
+const validate = require('../middleware/validate');
+
+router.post('/', validate(validateUsers), async (req, res) => {
     let user = await User.findOne({ email: req.body.email });
     if (user) return res.status(400).send('Post: User already registered...');
 
